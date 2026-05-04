@@ -468,10 +468,10 @@ void Decoration::updateButtonsGeometry()
     const auto buttonList = m_leftButtons->buttons() + m_rightButtons->buttons();
     for (KDecoration3::DecorationButton *button : buttonList) {
         auto btn = static_cast<Button *>(button);
-
-        const int verticalOffset = (isTopEdge() ? s->smallSpacing() * Metrics::TitleBar_TopMargin : 0);
-
         const QSizeF preferredSize = btn->preferredSize();
+
+        const int verticalOffset = borderTop() > preferredSize.height() ? (borderTop() - preferredSize.height() + 0.5) / 2.0 : 0;
+
         const int bHeight = preferredSize.height() + verticalOffset;
         const int bWidth = preferredSize.width();
 
@@ -487,24 +487,9 @@ void Decoration::updateButtonsGeometry()
         m_leftButtons->setSpacing(s->smallSpacing() * Metrics::TitleBar_ButtonSpacing);
 
         // padding
-        const int vPadding = isTopEdge() ? 0 : s->smallSpacing() * Metrics::TitleBar_TopMargin;
+        const int vPadding = 0;
         const int hPadding = s->smallSpacing() * Metrics::TitleBar_SideMargin;
-        if (isLeftEdge()) {
-            // add offsets on the side buttons, to preserve padding, but satisfy Fitts law
-            auto button = static_cast<Button *>(m_leftButtons->buttons().front());
-
-            QRectF geometry = button->geometry();
-            geometry.adjust(-hPadding, 0, 0, 0);
-            button->setGeometry(geometry);
-            button->setFlag(Button::FlagFirstInList);
-            button->setLeftPadding(hPadding);
-            button->setIconSize(button->preferredSize());
-
-            m_leftButtons->setPos(QPointF(0, vPadding));
-
-        } else {
-            m_leftButtons->setPos(QPointF(hPadding + borderLeft(), vPadding));
-        }
+        m_leftButtons->setPos(QPointF(hPadding + borderLeft(), vPadding));
     }
 
     // right buttons
@@ -513,23 +498,9 @@ void Decoration::updateButtonsGeometry()
         m_rightButtons->setSpacing(s->smallSpacing() * Metrics::TitleBar_ButtonSpacing);
 
         // padding
-        const int vPadding = isTopEdge() ? 0 : s->smallSpacing() * Metrics::TitleBar_TopMargin;
+        const int vPadding = 0;
         const int hPadding = s->smallSpacing() * Metrics::TitleBar_SideMargin;
-        if (isRightEdge()) {
-            auto button = static_cast<Button *>(m_rightButtons->buttons().back());
-
-            QRectF geometry = button->geometry();
-            geometry.adjust(0, 0, hPadding, 0);
-            button->setGeometry(geometry);
-            button->setFlag(Button::FlagFirstInList);
-            button->setRightPadding(hPadding);
-            button->setIconSize(button->preferredSize());
-
-            m_rightButtons->setPos(QPointF(size().width() - m_rightButtons->geometry().width(), vPadding));
-
-        } else {
-            m_rightButtons->setPos(QPointF(size().width() - m_rightButtons->geometry().width() - hPadding - borderRight(), vPadding));
-        }
+        m_rightButtons->setPos(QPointF(size().width() - m_rightButtons->geometry().width() - hPadding - borderRight(), vPadding));
     }
 
     update();
